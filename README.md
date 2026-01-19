@@ -1,2 +1,3 @@
-# Progetto_Calcolo
-Progetto Calcolo Numerico
+# PROGETTO 1: INTERPOLAZIONE POLINOMIALE CON NODI DI LEJA APPROSSIMATI
+## Mebri del Gruppo
+- Riccardo Pontello, matricola 2076441
