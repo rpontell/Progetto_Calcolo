@@ -1,6 +1,4 @@
 % MAIN  Script di sperimentazione per il progetto: nodi di Leja approssimati
-% Questo script serve a confrontare le prestazioni di due algoritmi per calcolare i punti di Leja 
-% (DLP e DLP2) e a verificare l'accuratezza dell'interpolazione polinomiale ottenuta tramite questi punti rispetto ai punti equispaziati.
 
 clear; clc; close all; 
 
