@@ -1,6 +1,8 @@
 function dlp = DLP(x, d)
+
 x = x(:);                
-M = numel(x);           
+M = numel(x);       
+    
 if d >= M
     error('DLP: d deve essere < length(x).'); 
 end

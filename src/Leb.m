@@ -1,5 +1,6 @@
 function L = leb_con(z, x)
 
+% Inizializzazione vettori e parametri   
 z = z(:).';           
 x = x(:);             
 n = numel(z);
@@ -12,18 +13,21 @@ for i = 1:n
     W(i) = 1 / prod(diffs);
 end
 
+% Creazione e calcolo matrici
 X = x * ones(1, n);
 Z = ones(numel(x), 1) * z;
 A = W ./ (X - Z);
 
+% Identificazione nodi
 toll = 1e-14;
-is_node = abs(X - Z) < toll;
+isNodo = abs(X - Z) < toll;
 
+% Calcolo della funzione di Lebesgue
 S = sum(A, 2);
 lambda = sum(abs(A), 2) ./ abs(S);
 
-any_node = any(is_node, 2);
-lambda(any_node) = 1;
+anyNodo = any(isNodo, 2);
+lambda(anyNodo) = 1;
 
 L = max(lambda);
 
