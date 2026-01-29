@@ -21,14 +21,14 @@ if d >= M
     error('DLP: d deve essere < length(x).'); % Controllo di sicurezza: il grado del polinomio d deve essere minore del numero totale di punti M
 end
 
-dlp = zeros(1, d+1);     % Prealloca con 0 il vettore dei risultati (d+1 nodi) 
-dlp(1) = x(1);           % Il primo punto è fissato arbitrariamente al primo della mesh x(1)
-
 % Qui il codice assume che l'utente fornisca un x dove il primo elemento è il punto di partenza desiderato.
 available = true(M,1);   % Maschera logica: true se il punto NON è ancora stato scelto /spiega meglio
 available(1) = false;    % Il primo punto è già preso
 prodvals = ones(M,1);    % Vettore accumulatore per la produttoria: memorizza il prodotto delle distanze 
                          % dai nodi già scelti per ogni punto della mesh. Viene inizializzato a 1
+
+dlp = zeros(1, d+1);     % Prealloca con 0 il vettore dei risultati (d+1 nodi) 
+dlp(1) = x(1);           % Il primo punto è fissato arbitrariamente al primo della mesh x(1)
 
 for s = 2:d+1 %qua si parte da 2 perchè in matlab i cicli for partono da 1 e non da 0
 % L'obiettivo è trovare il prossimo punto xk che massimizza: ∏da j=1 a s-1 di|xk-ξj| dove ξj sono i punti di Leja già trovati
@@ -119,4 +119,5 @@ for s = 2:d+1
     dlp(s) = x(idx);
     available(idx) = false;
 end
+
 %}
