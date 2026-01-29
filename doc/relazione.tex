@@ -1,5 +1,4 @@
 \documentclass[12pt]{article}
-
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
@@ -47,14 +46,16 @@
   \vspace{1cm}
   \begin{figure}[htbp!]
     \centering
-   % \includegraphics[width=0.45\textwidth]{logo_unipd.png}
+    \includegraphics[width=0.45\textwidth]{logo_unipd.png}
   \end{figure}
   \vspace{1.5cm}
   {\LARGE \textbf{Relazione per:}\par}
   {\Huge \textbf{INTERPOLAZIONE POLINOMIALE CON NODI DI LEJA\\APPROSSIMATI}\par}
   \vfill
   \textbf{Realizzata da:}\par
-  Nome Cognome, matricola \par
+  Riccardo Pontello, matricola 2076441 \par
+  Mihaela-Mariana Romascu, matricola 2079726 \par
+  Szymon Fyda, matricola 2101080 \par
   \vspace{0.5cm}
   \textbf{Corso:} Programmazione/Calcolo Numerico (MATLAB)\par
   \vspace{0.2cm}
@@ -66,42 +67,59 @@
 
 % ===================== INTRO =====================
 \section{Introduzione}
-Obiettivo del progetto: implementare in \textsc{Matlab} l'interpolazione polinomiale su \([{-}1,1]\) utilizzando \emph{punti di Leja approssimati} estratti da una mesh fitta, calcolare la \emph{costante di Lebesgue} per valutarne la stabilità, e confrontare l'accuratezza dell'interpolante con quella ottenuta usando \emph{nodi equispaziati}.\\[2mm]
-Sia \(\{z_i\}_{i=0}^d\) l'insieme dei nodi. L'interpolante è costruito su base di \textbf{Chebyshev} di primo tipo:
-\[
-V_{ij}=\cos\!\big((j{-}1)\arccos(z_i)\big),\qquad i=1,\dots,d{+}1,\ j=1,\dots,d{+}1,
-\]
-e i coefficienti si ottengono risolvendo il sistema lineare \(V\,c=f(z)\) con l'operatore \verb|\| di MATLAB, senza usare \verb|polyfit|.
+Supponiamo di avere delle valutazioni $x \xrightarrow{} f(x)$ e delle misurazioni $(x_i, y_i=f(x_i))$, $i=0,1,...,m$. L'interpolazione è il processo con cui si cerca di costruire una funzione g, tale che $g(x_i)=y_i$ $\forall i$, con g scelta in maniera tale da renderla facile da costruire, valutare, derivare e integrare. \\[2mm]
+L'obiettivo del progetto è implementare in \textsc{Matlab} l'interpolazione polinomiale sfruttando i \emph{nodi di Leja} su \([{-}1,1]\), ma
+essendo il calcolo dei veri nodi computazionalmente molto oneroso, ci basiamo sui \emph{nodi di Leja approssimati} estratti da una mesh fitta di 5000 punti.\\
+Nella soluzione verranno implementati due metodi per il calcolo dell'interpolazione con tali nodi, di cui si stimerà la \emph{costante di Lebesgue} di ciascuno per valutarne la stabilità e successivamente, verrà comparata l'accuratezza dell'interpolante, confrontandola con quella ottenuta utilizzando i \emph{nodi equispaziati}.
 
 % ===================== ALGORITMI =====================
-\section{Algoritmi implementati}
-
-\subsection{Algoritmo 1: DLP (produttoria)}
-A partire dal primo nodo \(z_0=x(1)\) (primo elemento della mesh), il nodo successivo massimizza la produttoria delle distanze:
+\subsection{Algoritmo 1: DLP (massimizzazione della produttoria)}
+Fissato \(z_0=x(1)\) come da specifica del progetto, il successivo nodo massimizza la produttoria delle distanze:
 \[
 z_s=\arg\max_{x\in X_M}\ \prod_{i=0}^{s-1}\abs{x-z_i},\qquad s=1,\dots,d.
 \]
-L'implementazione sfrutta aggiornamenti vettoriali della produttoria per ridurre i costi.
+L'implementazione si basa su un vettore (inizializzato con tutti uno) che memorizza, per ogni punto della mesh, il prodotto cumulativo delle distanze dai nodi di Leja già selezionati.
+In seguito verrà aggiornato moltiplicando elemento per elemento con il vettore contenente le distanze (in modulo) dall'ultimo nodo scelto a tutti i punti di x. Questa è un'operazione vettoriale efficiente in MATLAB, che aggiorna tutti gli elementi simultaneamente senza bisogno di loop interni. Senza vettorializzazione, si dovrebbe calcolare il prodotto per ogni punto individualmente avendo così una complessità maggiore.
 
-\subsection{Algoritmo 2: DLP2 (LU su Vandermonde--Chebyshev)}
-Si costruisce la matrice di Vandermonde in base di Chebyshev su tutta la mesh e si applica la fattorizzazione \(LU\) con pivoting sulle righe; l'ordinamento dei pivot fornisce i primi \(d{+}1\) punti. Si forza \(z_0=x(1)\) per rispettare la specifica.
+\subsection{Algoritmo 2: DLP2 (LU su \emph{Vandermonde--Chebyshev})}
+In ambito di interpolazione di dati, concetto fondamentale è la \emph{Matrice di Vandermonde V}, tale per cui $V * c = y$. 
+Il condizionamento del polinomio interpolante $\lambda_d$ dipende esclusivamente dai nodi, mentre per $V(i,j) = \phi_j(x_i)$ base di $P^d$, 
+il condizionamento di V dipende sia dai nodi che dalla base $\phi_j$. \\
+Per $d \gg 1$ (già a partire da 10/12) la matrice di Vandermonde
+diventa malcondizionata, ma è possibile contenere il condizionamento di V utilizzando la base dei \emph{polinomi di Chebyshev} per cui, preso \(\{z_i\}_{i=0}^d\) l'insieme dei nodi, l'interpolante costruito su base di \textbf{Chebyshev} di primo tipo è:
+\[
+V_{ij}=\cos\!\big((j{-}1)\arccos(z_i)\big),\qquad i=1,\dots,d{+}1,\ j=1,\dots,d{+}1,
+\]
+
+
+i cui coefficienti si ottengono risolvendo il sistema lineare \(V * c=f(z)\) con l'operatore \verb|\| di MATLAB, senza usare \verb|polyfit|.
+
+Si costruisce la matrice di Vandermonde in base di Chebyshev su tutta la mesh e si applica la fattorizzazione \(LU\) con pivoting sulle righe forzando \(z_0=x(1)\) come richiesto dalla specifica, successivamente l'ordinamento dei pivot fornisce i primi \(d{+}1\) punti.
 
 \subsection{Costante di Lebesgue}
-La funzione di Lebesgue è
+Nell'analisi matematica, la costante di Lebesgue dà un'idea di quanto sia buono l'interpolante di una funzione (in base ai nodi considerati) rispetto alla miglior approssimazione polinomiale della funzione. \\
+Il grado $d$ dei polinomi viene fissato preventivamente e la costante di Lebesgue per polinomi di grado al massimo $d$ e insieme di almeno $d+1$ nodi $T$, è generalmente indicata con $\lambda_d(T)$ ed esplode a $+\infty$ se $d\xrightarrow{}+\infty$. \\
+La funzione che associa $x\xrightarrow{}\sum_{i=0}^d \abs{\ell_i(x)}$ prende il nome di funzione di Lebesgue, da cui si ricava la costante di Lebesgue :
 \[
-\lambda_d(x)=\sum_{i=0}^d \abs{\ell_i(x)},
+\lambda_d(x)=MAX_{x\in[a,b]} \sum_{i=0}^d \abs{\ell_i(x)},
 \]
-dove \(\ell_i\) sono i polinomi di Lagrange. La costante è \(\Lambda_d=\max_{x\in[-1,1]}\lambda_d(x)\). La funzione \texttt{leb\_con} la calcola con formula \emph{baricentrica} usando al massimo un ciclo (per i pesi), il resto è vettorializzato.
+con $[a,b] = [-1,1]$ nel nostro caso ed \(\ell_i\) sono i polinomi di Lagrange. \\
+La quantità $\lambda_d$ viene calcolata in Matlab con la funzione \texttt{leb\_con}, con formula \emph{baricentrica} usando al massimo un ciclo (per i pesi), mentre il resto è vettorializzato.
 
 % ===================== IMPLEMENTAZIONE =====================
 \section{Implementazione (MATLAB)}
 
 \subsection*{File principali}
 \begin{itemize}
-  \item \texttt{DLP.m} --- Estrazione nodi di Leja per massimizzazione della produttoria.
-  \item \texttt{DLP2.m} --- Estrazione nodi via \(LU\) su Vandermonde--Chebyshev (con \(z_0=x(1)\) forzato).
-  \item \texttt{leb\_con.m} --- Calcolo della costante di Lebesgue su griglia di valutazione.
-  \item \texttt{main.m} --- Sperimentazione automatica: tempi, costanti di Lebesgue, accuracies.
+  \item \texttt{DLP.m} --- Estrazione nodi di Leja per massimizzazione della produttoria. \\
+  \texttt{[INPUT]} : DLP(x,d) con x vettore dei punti della mesh in [-1,1] e d grado del polinomio \\
+  \texttt{[OUTPUT]} : vettore riga con i d+1 punti di Leja approssimati
+  \item \texttt{DLP2.m} --- Estrazione nodi via \(LU\) su Vandermonde--Chebyshev \\
+   \texttt{[INPUT]} e \texttt{[OUTPUT]} come sopra
+  \item \texttt{Leb.m} --- Calcolo della costante di Lebesgue su griglia di valutazione. \\
+  \texttt{[INPUT]} : leb\_con(z, x) con z vettore riga dei nodi e x vettore colonna dei punti in [-1,1] \\
+  \texttt{[OUTPUT]} : scalare reale contenente il massimo della funzione di Lebesgue su tutti i punti x
+  \item \texttt{main.m} --- Sperimentazione automatica: tempi, costanti di Lebesgue e accuratezze.
 \end{itemize}
 
 \subsection*{Estratti di codice}
@@ -113,9 +131,9 @@ c  = V \ f(z);          % coeff. senza polyfit, risoluzione del sistema
 \end{lstlisting}
 
 \begin{lstlisting}[caption={Costante di Lebesgue (schema baricentrico)}]
-% w_i = 1 / prod_{j!=i} (z_i - z_j)
-% ell_i(x) = (w_i/(x - z_i)) / sum_j (w_j/(x - z_j))
-% lambda(x) = sum_i |ell_i(x)|
+w_i = 1 / prod_{j!=i} (z_i - z_j)
+ell_i(x) = (w_i/(x - z_i)) / sum_j (w_j/(x - z_j))
+lambda(x) = sum_i |ell_i(x)|
 \end{lstlisting}
 
 % ===================== SPERIMENTAZIONE =====================
@@ -129,7 +147,7 @@ ben definita su \([{-}1,1]\). I tempi sono misurati con \verb|tic/toc| per entra
 \subsection{Tempi computazionali}
 \begin{figure}[htbp!]
   \centering
-  %\includegraphics[width=.9\textwidth]{tempi.png}
+   \includegraphics[width=.9\textwidth]{tempi.png}
   \caption{Tempi per l'estrazione dei nodi di Leja: DLP (produttoria) vs DLP2 (LU--Chebyshev).}
 \end{figure}
 
@@ -150,7 +168,7 @@ Dal punto di vista pratico, il valore relativamente contenuto di \(\Lambda_d\) i
 
 \begin{figure}[htbp!]
   \centering
-  %\includegraphics[width=.9\textwidth]{lebesgue.png}
+   \includegraphics[width=.9\textwidth]{lebesgue.png}
   \caption{Costante di Lebesgue (scala semilog): i due metodi producono gli stessi nodi di Leja.}
 \end{figure}
 
@@ -159,7 +177,7 @@ Dal punto di vista pratico, il valore relativamente contenuto di \(\Lambda_d\) i
 Interpolante costruita in base di Chebyshev con i nodi Leja (dall'algoritmo più efficiente) e con nodi equispaziati; confronto dell'errore massimo su griglia densa.
 \begin{figure}[htbp!]
   \centering
-  %\includegraphics[width=.9\textwidth]{errori.png}
+   \includegraphics[width=.9\textwidth]{errori.png}
   \caption{Errore massimo dell'interpolante su \([{-}1,1]\): Leja vs equispaziati.}
 \end{figure}
 
@@ -175,6 +193,7 @@ I risultati mostrano che:
 
 % ===================== APPENDICE (OPZIONALE) =====================
 \section*{Appendice: riproducibilità}
-Per riprodurre i grafici, eseguire \texttt{main.m} dopo aver posto i sorgenti \texttt{DLP.m}, \texttt{DLP2.m}, \texttt{leb\_con.m} nella stessa cartella. Le figure sono salvate automaticamente in \texttt{doc/img/} (o spostate manualmente prima di compilare).
+Per riprodurre i grafici, eseguire \texttt{main.m} dopo aver posto i sorgenti \texttt{DLP.m}, \texttt{DLP2.m}, \texttt{Leb.m} nella stessa cartella. Le figure sono salvate automaticamente in \texttt{doc/img/} (o spostate manualmente prima di compilare).
+
 
 \end{document}
