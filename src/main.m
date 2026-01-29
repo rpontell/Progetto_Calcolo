@@ -61,6 +61,7 @@ for d = 1:deg_max
 end
 
 % ---- Grafici ----
+
 %scriptDir = fileparts(mfilename('fullpath'));
 %imgDir = fullfile(scriptDir, '..', 'doc', 'img');
 %if ~exist(imgDir,'dir'), mkdir(imgDir); end
