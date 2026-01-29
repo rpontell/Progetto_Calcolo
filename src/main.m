@@ -16,8 +16,8 @@ if deg_max + 1 > numel(xmesh)
 end
 
 % Preallocare spazio per salvare i tempi di calcolo per ogni grado d
-times1 = zeros(deg_max,1);
-times2 = zeros(deg_max,1);    
+tempi1 = zeros(deg_max,1);
+tempi2 = zeros(deg_max,1);    
 Leb1   = zeros(deg_max,1);    
 Leb2   = zeros(deg_max,1);    
 err_leja = zeros(deg_max,1);
@@ -25,8 +25,8 @@ err_equi = zeros(deg_max,1);
 
 for d = 1:deg_max 
     %Esegue i due algoritmi e misura quanto tempo ci mettono 
-    tic; z1 = DLP(xmesh, d); times1(d) = toc; 
-    tic; z2 = DLP2(xmesh, d); times2(d) = toc;
+    tic; z1 = DLP(xmesh, d); tempi1(d) = toc; 
+    tic; z2 = DLP2(xmesh, d); tempi2(d) = toc;
 
     % Calcolo Costante di Lebesgue
     Leb1(d) = leb_con(z1, xeval);
@@ -58,7 +58,7 @@ for d = 1:deg_max
     err_equi(d) = max(abs(p_equi - f(xeval)));
 
     fprintf('d=%2d | t1=%.4fs, t2=%.4fs | Leb1=%.3e Leb2=%.3e | errLeja=%.3e errEqui=%.3e\n', ...
-    d, times1(d), times2(d), Leb1(d), Leb2(d), err_leja(d), err_equi(d));
+    d, tempi1(d), tempi2(d), Leb1(d), Leb2(d), err_leja(d), err_equi(d));
 
 end
 
@@ -68,8 +68,8 @@ end
 %if ~exist(imgDir,'dir'), mkdir(imgDir); end
 
 figure;
-plot(1:deg_max, times2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
-plot(1:deg_max, times1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');
+plot(1:deg_max, tempi2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
+plot(1:deg_max, tempi1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');
 xlabel('Grado d crescente'); ylabel('Tempo [s]'); 
 grid on; 
 title(sprintf('Tempi computazionali (Mmesh=%d)', Mmesh));
