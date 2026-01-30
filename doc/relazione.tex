@@ -36,6 +36,7 @@
   showspaces=false,
   showstringspaces=false
 }
+\captionsetup{font=scriptsize} 
 
 \begin{document}
 
@@ -116,33 +117,20 @@ La quantità $\lambda_d$ viene calcolata in Matlab con la funzione \texttt{leb\_
   \texttt{[OUTPUT]} : vettore riga con i d+1 punti di Leja approssimati
   \item \texttt{DLP2.m} --- Estrazione nodi via \(LU\) su Vandermonde--Chebyshev \\
    \texttt{[INPUT]} e \texttt{[OUTPUT]} come sopra
-  \item \texttt{Leb.m} --- Calcolo della costante di Lebesgue su griglia di valutazione. \\
+  \item \texttt{leb\_con.m} --- Calcolo della costante di Lebesgue su griglia di valutazione. \\
   \texttt{[INPUT]} : leb\_con(z, x) con z vettore riga dei nodi e x vettore colonna dei punti in [-1,1] \\
   \texttt{[OUTPUT]} : scalare reale contenente il massimo della funzione di Lebesgue su tutti i punti x
   \item \texttt{main.m} --- Sperimentazione automatica: tempi, costanti di Lebesgue e accuratezze.
 \end{itemize}
 
-\subsection*{Estratti di codice}
-\begin{lstlisting}[caption={Risoluzione dei coefficienti in base di Chebyshev}]
-% z: nodi (Leja o equispaziati), f: funzione campionata in z
-j = 0:d;
-V  = cos(acos(z) * j);  % Vandermonde-Chebyshev
-c  = V \ f(z);          % coeff. senza polyfit, risoluzione del sistema
-\end{lstlisting}
-
-\begin{lstlisting}[caption={Costante di Lebesgue (schema baricentrico)}]
-w_i = 1 / prod_{j!=i} (z_i - z_j)
-ell_i(x) = (w_i/(x - z_i)) / sum_j (w_j/(x - z_j))
-lambda(x) = sum_i |ell_i(x)|
-\end{lstlisting}
-
 % ===================== SPERIMENTAZIONE =====================
 \section{Sperimentazione}
-\paragraph{Setup.} Mesh per l'estrazione dei Leja: \(M=10^4\) (poi ripetuto con \(10^5\) per i grafici finali); gradi \(d=1,\dots,50\); griglia di valutazione densa su \([{-}1,1]\). Funzione test:
+\subsection*{Setup} Inizializzazione della mesh per l'estrazione dei nodi di Leja con M = $10^5$ sull'intervallo $[-1,1]$ e gradi $d = 1,\dots,50$. \\
+Infine per ciascun $n$ dell'algoritmo più efficiente, si testa l'interpolante costruita su tali nodi con la funzione:
 \[
 f(x)=\frac{1}{x-1.3},
 \]
-ben definita su \([{-}1,1]\). I tempi sono misurati con \verb|tic/toc| per entrambi gli algoritmi.
+ben definita su \([{-}1,1]\).
 
 \subsection{Tempi computazionali}
 \begin{figure}[htbp!]
@@ -150,6 +138,7 @@ ben definita su \([{-}1,1]\). I tempi sono misurati con \verb|tic/toc| per entra
    \includegraphics[width=.9\textwidth]{tempi.png}
   \caption{Tempi per l'estrazione dei nodi di Leja: DLP (produttoria) vs DLP2 (LU--Chebyshev).}
 \end{figure}
+A parità di condizioni, si nota come l'algoritmo DLP sia più veloce rispetto a DLP2. Questa differenza è dovuta alle operazioni di 
 
 \subsection{Costante di Lebesgue}
 La costante di Lebesgue \(\Lambda_d\) misura l'amplificazione dell'errore dei dati nell'interpolazione: un valore moderato implica stabilità numerica. Per nodi ``buoni'' (Chebyshev, Leja) la crescita attesa è \(O(\log d)\) o comunque molto più lenta rispetto ai nodi equispaziati, per i quali la costante cresce rapidamente (quasi esponenziale) causando il fenomeno di Runge.
@@ -193,7 +182,7 @@ I risultati mostrano che:
 
 % ===================== APPENDICE (OPZIONALE) =====================
 \section*{Appendice: riproducibilità}
-Per riprodurre i grafici, eseguire \texttt{main.m} dopo aver posto i sorgenti \texttt{DLP.m}, \texttt{DLP2.m}, \texttt{Leb.m} nella stessa cartella. Le figure sono salvate automaticamente in \texttt{doc/img/} (o spostate manualmente prima di compilare).
+Per riprodurre i grafici, eseguire \texttt{main.m} dopo aver posto i sorgenti \texttt{DLP.m}, \texttt{DLP2.m}, \texttt{leb\_con.m} nella stessa cartella. Le figure sono salvate automaticamente in \texttt{doc/img/} (o spostate manualmente prima di compilare).
 
 
 \end{document}
