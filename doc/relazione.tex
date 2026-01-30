@@ -13,6 +13,7 @@
 \usepackage{sectsty}
 \usepackage{tikz}
 \usepackage{geometry}
+\usepackage{float}
 \geometry{a4paper,margin=2.5cm}
 
 
@@ -92,20 +93,20 @@ diventa malcondizionata, ma è possibile contenere il condizionamento di V utili
 V_{ij}=\cos\!\big((j{-}1)\arccos(z_i)\big),\qquad i=1,\dots,d{+}1,\ j=1,\dots,d{+}1,
 \]
 
-
 i cui coefficienti si ottengono risolvendo il sistema lineare \(V * c=f(z)\) con l'operatore \verb|\| di MATLAB, senza usare \verb|polyfit|.
 
 Si costruisce la matrice di Vandermonde in base di Chebyshev su tutta la mesh e si applica la fattorizzazione \(LU\) con pivoting sulle righe forzando \(z_0=x(1)\) come richiesto dalla specifica, successivamente l'ordinamento dei pivot fornisce i primi \(d{+}1\) punti.
 
 \subsection{Costante di Lebesgue}
 Nell'analisi matematica, la costante di Lebesgue dà un'idea di quanto sia buono l'interpolante di una funzione (in base ai nodi considerati) rispetto alla miglior approssimazione polinomiale della funzione. \\
-Il grado $d$ dei polinomi viene fissato preventivamente e la costante di Lebesgue per polinomi di grado al massimo $d$ e insieme di almeno $d+1$ nodi $T$, è generalmente indicata con $\lambda_d(T)$ ed esplode a $+\infty$ se $d\xrightarrow{}+\infty$. \\
+Il grado $d$ dei polinomi viene fissato preventivamente e la costante di Lebesgue per polinomi di grado al massimo $d$ e insieme di almeno $d+1$ nodi $T$, è generalmente indicata con $\lambda_d(T)$ e tende a $+\infty$ se $d\xrightarrow{}+\infty$. \\
 La funzione che associa $x\xrightarrow{}\sum_{i=0}^d \abs{\ell_i(x)}$ prende il nome di funzione di Lebesgue, da cui si ricava la costante di Lebesgue :
 \[
 \lambda_d(x)=MAX_{x\in[a,b]} \sum_{i=0}^d \abs{\ell_i(x)},
 \]
 con $[a,b] = [-1,1]$ nel nostro caso ed \(\ell_i\) sono i polinomi di Lagrange. \\
-La quantità $\lambda_d$ viene calcolata in Matlab con la funzione \texttt{leb\_con}, con formula \emph{baricentrica} usando al massimo un ciclo (per i pesi), mentre il resto è vettorializzato.
+La quantità $\lambda_d$ misura dunque l'amplificazione dell'errore dei dati nell'interpolazione e un valore contenuto implica stabilità numerica. \\
+La funzione MATLAB per il calcolo della costante è \texttt{leb\_con}, la quale utilizza la formula \emph{baricentrica} usando al massimo un ciclo (per i pesi), mentre il resto è vettorializzato.
 
 % ===================== IMPLEMENTAZIONE =====================
 \section{Implementazione (MATLAB)}
@@ -126,63 +127,66 @@ La quantità $\lambda_d$ viene calcolata in Matlab con la funzione \texttt{leb\_
 % ===================== SPERIMENTAZIONE =====================
 \section{Sperimentazione}
 \subsection*{Setup} Inizializzazione della mesh per l'estrazione dei nodi di Leja con M = $10^5$ sull'intervallo $[-1,1]$ e gradi $d = 1,\dots,50$. \\
-Infine per ciascun $n$ dell'algoritmo più efficiente, si testa l'interpolante costruita su tali nodi con la funzione:
+Infine per ciascun $n$ dell'algoritmo più efficiente, si testa l'interpolante costruita su tali nodi con la funzione ben definita su \([{-}1,1]\):
 \[
 f(x)=\frac{1}{x-1.3},
 \]
-ben definita su \([{-}1,1]\).
 
 \subsection{Tempi computazionali}
 \begin{figure}[htbp!]
   \centering
-   \includegraphics[width=.9\textwidth]{tempi.png}
-  \caption{Tempi per l'estrazione dei nodi di Leja: DLP (produttoria) vs DLP2 (LU--Chebyshev).}
+   \includegraphics[width=.8\textwidth]{tempi.png}
+  \caption{Tempi per l'estrazione dei nodi di Leja: DLP (produttoria) vs DLP2 (LU--Chebyshev)}
 \end{figure}
-A parità di condizioni, si nota come l'algoritmo DLP sia più veloce rispetto a DLP2. Questa differenza è dovuta alle operazioni di 
+A parità di condizioni, si nota come l'algoritmo $DLP$ sia più veloce rispetto a $DLP2$. Questa differenza è dovuta all'operazione di fattorizzazione LU con pivoting della matrice di Vandermonde di grado $d$ utilizzante i polinomi di Chebyshev richiesta nell'algoritmo prima dell'esecuzione.
 
 \subsection{Costante di Lebesgue}
-La costante di Lebesgue \(\Lambda_d\) misura l'amplificazione dell'errore dei dati nell'interpolazione: un valore moderato implica stabilità numerica. Per nodi ``buoni'' (Chebyshev, Leja) la crescita attesa è \(O(\log d)\) o comunque molto più lenta rispetto ai nodi equispaziati, per i quali la costante cresce rapidamente (quasi esponenziale) causando il fenomeno di Runge.
-
-Nel nostro esperimento \(\Lambda_d\) è stimata come \(\max_{x_k\in \mathcal X}\lambda_d(x_k)\) su una griglia densa \(\mathcal X\) di 5000 (o 10000 nelle repliche finali) punti equispaziati in \([-1,1]\). Questa è un'approssimazione per difetto della vera costante continua, ma sufficiente a evidenziare l'andamento.
-
-Osservazioni dai grafici:
-\begin{itemize}
-  \item l'andamento cresce lentamente e non mostra esplosioni: conferma che i nodi di Leja selezionati mantengono un buon condizionamento;
-  \item le due implementazioni (DLP e DLP2) producono la stessa sequenza di nodi, quindi la curva coincide (differenze numeriche al di sotto di \(10^{-13}\));
-  \item per gradi oltre ~40 la crescita si appiattisce leggermente a causa della discretizzazione della griglia e dell'arrotondamento floating point (doppia precisione);
-  \item il confronto (non riportato in figura) con nodi equispaziati mostrerebbe valori decisamente maggiori già per gradi medi, giustificando i maggiori errori interpolatori visti nella Sez.~4.3.
-\end{itemize}
-
-Dal punto di vista pratico, il valore relativamente contenuto di \(\Lambda_d\) implica che l'errore dell'interpolante sui nodi di Leja è dominato dall'errore di approssimazione della funzione e non dall'amplificazione numerica.
+La costante di Lebesgue $\lambda_d$ è stimata con la quantità $MAX_{x_k \in M} \lambda_d (x_k) $ su una griglia densa $M$ di 5000 punti equispaziati nell'intervallo $[-1,1]$. \\
+Presi dei nodi ``buoni'' (Chebyshev, Leja) la crescita attesa è \(O(\log d)\) e ci si aspetta sia più lenta rispetto ai nodi equispaziati, per i quali la costante cresce rapidamente (quasi esponenziale) causando il fenomeno di Runge. \\
 
 \begin{figure}[htbp!]
-  \centering
-   \includegraphics[width=.9\textwidth]{lebesgue.png}
-  \caption{Costante di Lebesgue (scala semilog): i due metodi producono gli stessi nodi di Leja.}
+\centering
+\includegraphics[width=.48\textwidth]{lebesgue.png} \quad \includegraphics[width=.48\textwidth]{img/lebesgue_leja-equi.png}
+\caption{Costante di Lebesgue (scala semilog): Confronto tra DLP, DLP2 e nodi equispaziati}
 \end{figure}
+
+\subsection*{Analisi dei grafici}
+\begin{itemize}
+  \item gli algoritmi DLP e DLP2 producono la stessa sequenza di nodi e di conseguenza anche l'andamento della costante di Lebesgue coincide;
+  \item la curva relativa al valore della costante di Lebesgue per DLP (e di conseguenza anche DLP2) cresce lentamente e conferma la previsione di un andamento pseudo-logaritmico stabilizzandosi per gradi $d \geq 40$. Per questo motivo, si conferma che la scelta dei nodi di Leja portano a un buon condizionamento;
+  % \item per gradi superiori a ~40 il grafico si appiattisce leggermente a causa della discretizzazione della griglia e dell'arrotondamento floating point (doppia precisione);
+  \item il grafico relativo all'andamento della costante di Lebesgue per l'interpolazione prodotta con nodi equispaziati cresce in maniera lineare, ma essendo in scala semilogaritmica, la costante di Lebesgue ha una crescita esponenziale e dunque la funzione è malcondizionata;
+  \item il confronto tra gli algoritmi, mostra come le interpolazioni con nodi di Leja siano soluzioni decisamente migliori rispetto all'interpolazione ottenuta con nodi equispaziati.
+\end{itemize}
+
+In conclusione, il valore relativamente contenuto di \(\Lambda_d\) implica che l'errore dell'interpolante sui nodi di Leja è dominato dall'errore di approssimazione della funzione e non dall'amplificazione numerica.
 
 \clearpage
 \subsection{Accuratezza dell'interpolante}
-Interpolante costruita in base di Chebyshev con i nodi Leja (dall'algoritmo più efficiente) e con nodi equispaziati; confronto dell'errore massimo su griglia densa.
 \begin{figure}[htbp!]
   \centering
-   \includegraphics[width=.9\textwidth]{errori.png}
-  \caption{Errore massimo dell'interpolante su \([{-}1,1]\): Leja vs equispaziati.}
+   \includegraphics[width=.8\textwidth]{errori.png}
+  \caption{Massimo errore dell'interpolante su \([{-}1,1]\): Leja vs nodi equispaziati}
 \end{figure}
+
+Considerazione principale che si ricava dal grafico è che l'errore massimo dell'interpolante ottenuto dai nodi di Leja è stabilmente inferiore all'errore dell'interpolante derivante da nodi equispaziati e quindi gode di una migliore accuratezza. \\
+Inoltre, al crescere di $d$, l'errore descresce in maniera lineare per l'interpolazione con nodi di Leja, mentre per nodi equispaziati, con grado $d \approx 35-40$, l'errore si stabilizza e per grado $d>40$, l'errore torna ad aumentare.
 
 % ===================== CONCLUSIONI =====================
 \section{Conclusioni}
-I risultati mostrano che:
+Riassumendo i risultati ottenuti, possiamo affermare che:
 \begin{itemize}
-  \item i due algoritmi (\texttt{DLP}, \texttt{DLP2}) estraggono la \emph{stessa} sequenza di nodi di Leja (con \(z_0=x(1)\)), come confermato dall'identità delle costanti di Lebesgue;
-  \item l'algoritmo \texttt{DLP} è più veloce per i gradi considerati, mentre \texttt{DLP2} risulta comunque competitivo e più strutturato;
-  \item la costante di Lebesgue sui nodi di Leja cresce moderatamente, indicando buona stabilità dell'interpolazione;
-  \item l'interpolante su nodi di Leja è nettamente più accurata rispetto a quella su nodi equispaziati, con errori che decrescono fino al limite di macchina.
+  \item i due algoritmi (\texttt{DLP}, \texttt{DLP2}) estraggono la stessa sequenza di nodi di Leja (con \(z_0=x(1)\)), come confermato dall'identità delle costanti di Lebesgue;
+  \item l'algoritmo \texttt{DLP} è più veloce per i gradi considerati, mentre \texttt{DLP2} risulta leggermente più lento, ma guadagna in stabilità per gradi $d$ alti ($\geq 100$);
+  \item la costante di Lebesgue sui nodi di Leja cresce con andamento pseudo-logaritmico, indicando buona stabilità dell'interpolazione;
+  \item l'interpolazione sui nodi di Leja è nettamente più accurata rispetto a quella sui nodi equispaziati, con l'errore che decresce fino al limite macchina.
 \end{itemize}
 
 % ===================== APPENDICE (OPZIONALE) =====================
-\section*{Appendice: riproducibilità}
-Per riprodurre i grafici, eseguire \texttt{main.m} dopo aver posto i sorgenti \texttt{DLP.m}, \texttt{DLP2.m}, \texttt{leb\_con.m} nella stessa cartella. Le figure sono salvate automaticamente in \texttt{doc/img/} (o spostate manualmente prima di compilare).
+\section{Altro}
+\subsection*{Informazioni utili riguardo al codice}
+Per riprodurre i grafici, eseguire \texttt{main.m} dopo aver messo i file \texttt{DLP.m}, \texttt{DLP2.m}, \texttt{leb\_con.m} nella stessa cartella. Per salvare automaticamente i grafici in \texttt{doc/img/}, rimuovere i commenti alle righe 67--69, 78, 87, 108, 110 del \texttt{main.m}. Se si vuole riprodurre e salvare anche il grafico del confronto tra DLP, DLP2 e i nodi equispaziati, togliere i commenti alle righe 28, 34, 89--99.
 
 
 \end{document}
+
