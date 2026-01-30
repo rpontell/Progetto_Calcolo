@@ -17,7 +17,8 @@ end
 tempi1 = zeros(deg_max,1);
 tempi2 = zeros(deg_max,1);    
 Leb1   = zeros(deg_max,1);    
-Leb2   = zeros(deg_max,1);    
+Leb2   = zeros(deg_max,1);  
+LebEqui   = zeros(deg_max,1);
 err_leja = zeros(deg_max,1);
 err_equi = zeros(deg_max,1);
 
@@ -25,10 +26,12 @@ for d = 1:deg_max
     %Esegue i due algoritmi e misura quanto tempo ci mettono 
     tic; z1 = DLP(xmesh, d); tempi1(d) = toc; 
     tic; z2 = DLP2(xmesh, d); tempi2(d) = toc;
+   % z3 = linspace(-1, 1, d+1);
 
     % Calcolo Costante di Lebesgue
     Leb1(d) = leb_con(z1, xeval);
     Leb2(d) = leb_con(z2, xeval);
+   % LebEqui(d) = leb_con(z3, xeval);
 
     % Costruzione dei vettori per Interpolazione
     z_leja = z2(:);                       
@@ -66,30 +69,42 @@ end
 %if ~exist(imgDir,'dir'), mkdir(imgDir); end
 
 figure;
-plot(1:deg_max, tempi2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
-plot(1:deg_max, tempi1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');
+h1 = plot(1:deg_max, tempi2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
+h2 = plot(1:deg_max, tempi1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');
 xlabel('Grado d'); ylabel('Tempo [s]'); 
 grid on; 
 title(sprintf('Tempi computazionali (Mmesh=%d)', Mmesh));
-legend('Location','northwest');
+legend([h1 h2], 'Location','northwest');
 %exportgraphics(gcf, fullfile(imgDir,'tempi.png'), 'Resolution', 300);
 
 figure;
-semilogy(1:deg_max, Leb2, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); hold on; 
-semilogy(1:deg_max, Leb1, 'o-', 'Color', 'm', 'DisplayName', 'Leja (DLP)');
+h3 = semilogy(1:deg_max, Leb2, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); hold on; 
+h4 = semilogy(1:deg_max, Leb1, 'o-', 'Color', 'm', 'DisplayName', 'Leja (DLP)');
 grid on;
 xlabel('Grado d'); ylabel('Costante di Lebesgue (semilog)');
 title('Costante di Lebesgue per i punti di Leja approssimati');
-legend('Location','northwest');
+legend([h3 h4], 'Location','northwest');
 %exportgraphics(gcf, fullfile(imgDir,'lebesgue.png'), 'Resolution', 300);
 
+%{
 figure;
-semilogy(1:deg_max, err_equi, 'd-', 'Color', 'r', 'DisplayName', 'Equispaziati'); hold on; 
-semilogy(1:deg_max, err_leja, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); 
+h5 = semilogy(1:deg_max, Leb2, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); hold on; 
+h6 = semilogy(1:deg_max, Leb1, 'o-', 'Color', 'm', 'DisplayName', 'Leja (DLP)');
+h7 = semilogy(1:deg_max, LebEqui, 'd-', 'Color', 'r', 'DisplayName', 'Equispaziati');
+grid on;
+xlabel('Grado d'); ylabel('Costante di Lebesgue (semilog)');
+title('Costante di Lebesgue per i punti di Leja approssimati e nodi Equispaziati');
+legend([h5 h6 h7], 'Location','northwest');
+exportgraphics(gcf, fullfile(imgDir,'lebesgue_leja-equi.png'), 'Resolution', 300);
+%}
+
+figure;
+h8 = semilogy(1:deg_max, err_equi, 'd-', 'Color', 'r', 'DisplayName', 'Equispaziati'); hold on; 
+h9 = semilogy(1:deg_max, err_leja, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); 
 grid on;
 xlabel('Grado d'); ylabel('Errore massimo su [-1,1]');
 title('Confronto accuratezza interpolante (base di Chebyshev)');
-legend('Location','southwest');
+legend([h8 h9], 'Location','southwest');
 %exportgraphics(gcf, fullfile(imgDir,'errori.png'), 'Resolution', 300);
 
 %fprintf('Figure salvate in %s: tempi.png, lebesgue.png, errori.png\n', imgDir);
