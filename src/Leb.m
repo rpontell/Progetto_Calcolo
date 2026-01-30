@@ -5,7 +5,7 @@ z = z(:).';
 x = x(:);             
 n = numel(z);
 
-% Pesi baricentrici
+% Pesi baricentrici w_i = 1 / prod i!=j (x_i - x_j)
 W = ones(1, n);
 for i = 1:n
     diffs = z(i) - z;
