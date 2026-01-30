@@ -88,7 +88,7 @@ mentre quello con i nodi di Leja (err_leja) dovrebbe diminuire stabilmente fino 
 figure;
 plot(1:deg_max, times2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
 plot(1:deg_max, times1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');% grafico dei tempi
-xlabel('Grado d crescente'); ylabel('Tempo [s]'); 
+xlabel('Grado d'); ylabel('Tempo [s]'); 
 grid on; 
 title(sprintf('Tempi computazionali (Mmesh=%d)', Mmesh));
 legend('Location','northwest');
@@ -98,7 +98,7 @@ figure;
 semilogy(1:deg_max, Leb2, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); hold on; % costante di Lebesgue in scala semilogaritmica
 semilogy(1:deg_max, Leb1, 'o-', 'Color', 'm', 'DisplayName', 'Leja (DLP)');
 grid on;
-xlabel('Grado d crescente'); ylabel('Costante di Lebesgue (semilog)');
+xlabel('Grado d'); ylabel('Costante di Lebesgue (semilog)');
 title('Costante di Lebesgue per i punti di Leja approssimati');
 legend('Location','northwest');
 %exportgraphics(gcf, fullfile(imgDir,'lebesgue.png'), 'Resolution', 300);
@@ -109,7 +109,7 @@ semilogy(1:deg_max, err_leja, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)');
 % Il testo del progetto dice di usare l'algoritmo per i nodi di Leja più efficiente. 
 % DLP è più efficiente in termini di tempo di calcolo ma DLP2 è più stabile anche se più lento.
 grid on;
-xlabel('Grado d crescente'); ylabel('Errore massimo su [-1,1]');
+xlabel('Grado d'); ylabel('Errore massimo su [-1,1]');
 title('Confronto accuratezza interpolante (base di Chebyshev)');
 legend('Location','southwest');
 %exportgraphics(gcf, fullfile(imgDir,'errori.png'), 'Resolution', 300);

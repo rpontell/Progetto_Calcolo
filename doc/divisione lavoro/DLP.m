@@ -40,7 +40,8 @@ for s = 2:d+1 %qua si parte da 2 perchè in matlab i cicli for partono da 1 e no
     [~, idx] = max(prodvals);  % Trova l'indice del valore massimo
     dlp(s) = x(idx);           % Salva il nuovo punto di Leja
     available(idx) = false;    % Marca l'indice come usato
-endend
+end
+end
 
 %{ 
 Esempio Pratico (Traccia del Loop)
