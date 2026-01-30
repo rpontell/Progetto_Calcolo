@@ -7,7 +7,7 @@ if d >= M
     error('DLP2: d deve essere < length(x).');
 end
 
-% Inializzazione vettori 
+% Inizializzazione vettori 
 xt = min(max(x, -1), 1);  
 theta = acos(xt);        
 j = 0:d;          
@@ -22,7 +22,7 @@ if p(1) ~= 1
     p = [1; p(p~=1)];
 end
 
-%Seleziona i primi d+1 indici ed etrae i punti della mesh x transoposti corrispondenti
+% Seleziona i primi d+1 indici ed etrae i punti della mesh x transoposti corrispondenti
 idx = p(1:d+1);      
 dlp = x(idx).’;      
 
