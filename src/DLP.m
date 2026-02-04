@@ -27,4 +27,5 @@ for s = 2:d+1
     [~, idx] = max(prodvalori);  
     dlp(s) = x(idx);          
     disponibile(idx) = false;    
-endend
+end
+end

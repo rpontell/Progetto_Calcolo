@@ -37,7 +37,7 @@ for s = 2:d+1 %qua si parte da 2 perchè in matlab i cicli for partono da 1 e no
     prodvalori = prodvalori .* dist; % Aggiorna il prodotto cumulativo
     
     prodvalori(~disponibile) = -inf; % Esclude i nodi usati dalla ricerca del massimo
-    [~, idx] = max(prodvalori);  % Trova l'indice del valore massimo
+    [~, idx] = max(prodvalori);  % Trova l'indice del valore massimo max e lo assegna a idx ignorando il primo valore
     dlp(s) = x(idx);           % Salva il nuovo punto di Leja
     disponibile(idx) = false;    % Marca l'indice come usato
 end

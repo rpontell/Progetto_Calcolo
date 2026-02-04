@@ -15,7 +15,7 @@ j = 0:d;
 V = cos(theta * j);      
 
 % Fattorizzazione LU con Pivoting parziale PV = LU e restituisce p come vettore di permutazione. 
-[~, ~, p] = lu(V, ‘vector'); 
+[~, ~, p] = lu(V, 'vector'); 
 
 % Forza x(1) come primo nodo
 if p(1) ~= 1
@@ -24,6 +24,6 @@ end
 
 % Seleziona i primi d+1 indici ed etrae i punti della mesh x transoposti corrispondenti
 idx = p(1:d+1);      
-dlp = x(idx).’;      
+dlp = x(idx).';      
 
 end
