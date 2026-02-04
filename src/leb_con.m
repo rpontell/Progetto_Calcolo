@@ -8,9 +8,9 @@ n = numel(z);
 % Pesi baricentrici w_i = 1 / prod i!=j (x_i - x_j)
 W = ones(1, n);
 for i = 1:n
-    diffs = z(i) - z;
-    diffs(i) = 1;
-    W(i) = 1 / prod(diffs);
+    diff = z(i) - z;
+    diff(i) = 1;
+    W(i) = 1 / prod(diff);
 end
 
 % Creazione e calcolo matrici

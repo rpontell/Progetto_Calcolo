@@ -16,21 +16,24 @@ if deg_max + 1 > numel(xmesh)
 end
 
 % Preallocare spazio per salvare i tempi di calcolo per ogni grado d
-times1 = zeros(deg_max,1); % Crea una matrice di zeri di dimensione deg_max righe e 1 colonna
-times2 = zeros(deg_max,1);    
+tempi1 = zeros(deg_max,1); % Crea una matrice di zeri di dimensione deg_max righe e 1 colonna
+tempi2 = zeros(deg_max,1);    
 Leb1   = zeros(deg_max,1);    
-Leb2   = zeros(deg_max,1);    
+Leb2   = zeros(deg_max,1);  
+% LebEqui   = zeros(deg_max,1);
 err_leja = zeros(deg_max,1);
 err_equi = zeros(deg_max,1);
 
 for d = 1:deg_max %itera per ogni grado d da 1 a 50
     %Esegue i due algoritmi e misura quanto tempo ci mettono usando le funzioni indicate tic e toc
-    tic; z1 = DLP(xmesh, d); times1(d) = toc; 
-    tic; z2 = DLP2(xmesh, d); times2(d) = toc;
+    tic; z1 = DLP(xmesh, d); tempi1(d) = toc; 
+    tic; z2 = DLP2(xmesh, d); tempi2(d) = toc;
+   % z3 = linspace(-1, 1, d+1);
 
     % Calcolo Costante di Lebesgue
     Leb1(d) = leb_con(z1, xeval);
     Leb2(d) = leb_con(z2, xeval);
+   % LebEqui(d) = leb_con(z3, xeval);
 
     % Costruzione dei vettori per Interpolazione
     z_leja = z2(:);                       
@@ -61,7 +64,7 @@ for d = 1:deg_max %itera per ogni grado d da 1 a 50
     err_equi(d) = max(abs(p_equi - f(xeval)));
 
     fprintf('d=%2d | t1=%.4fs, t2=%.4fs | Leb1=%.3e Leb2=%.3e | errLeja=%.3e errEqui=%.3e\n', ...
-    d, times1(d), times2(d), Leb1(d), Leb2(d), err_leja(d), err_equi(d));
+    d, tempi1(d), tempi2(d), Leb1(d), Leb2(d), err_leja(d), err_equi(d));
 
 end
 %{
@@ -86,8 +89,8 @@ mentre quello con i nodi di Leja (err_leja) dovrebbe diminuire stabilmente fino 
 %if ~exist(imgDir,'dir'), mkdir(imgDir); end
 
 figure;
-plot(1:deg_max, times2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
-plot(1:deg_max, times1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');% grafico dei tempi
+plot(1:deg_max, tempi2, 's-', 'Color', 'g', 'DisplayName', 'DLP2 (LU Chebyshev)'); hold on; 
+plot(1:deg_max, tempi1, 'o-', 'Color', 'm', 'DisplayName', 'DLP (Produttoria)');% grafico dei tempi
 xlabel('Grado d'); ylabel('Tempo [s]'); 
 grid on; 
 title(sprintf('Tempi computazionali (Mmesh=%d)', Mmesh));
@@ -102,6 +105,18 @@ xlabel('Grado d'); ylabel('Costante di Lebesgue (semilog)');
 title('Costante di Lebesgue per i punti di Leja approssimati');
 legend('Location','northwest');
 %exportgraphics(gcf, fullfile(imgDir,'lebesgue.png'), 'Resolution', 300);
+
+%{
+figure;
+h5 = semilogy(1:deg_max, Leb2, 's-', 'Color', 'g', 'DisplayName', 'Leja (DLP2)'); hold on; 
+h6 = semilogy(1:deg_max, Leb1, 'o-', 'Color', 'm', 'DisplayName', 'Leja (DLP)');
+h7 = semilogy(1:deg_max, LebEqui, 'd-', 'Color', 'r', 'DisplayName', 'Equispaziati');
+grid on;
+xlabel('Grado d'); ylabel('Costante di Lebesgue (semilog)');
+title('Costante di Lebesgue per i punti di Leja approssimati e nodi Equispaziati');
+legend([h5 h6 h7], 'Location','northwest');
+exportgraphics(gcf, fullfile(imgDir,'lebesgue_leja-equi.png'), 'Resolution', 300);
+%}
 
 figure;
 semilogy(1:deg_max, err_equi, 'd-', 'Color', 'r', 'DisplayName', 'Equispaziati'); hold on; 

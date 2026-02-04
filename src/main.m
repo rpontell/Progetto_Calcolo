@@ -18,7 +18,7 @@ tempi1 = zeros(deg_max,1);
 tempi2 = zeros(deg_max,1);    
 Leb1   = zeros(deg_max,1);    
 Leb2   = zeros(deg_max,1);  
-LebEqui   = zeros(deg_max,1);
+% LebEqui   = zeros(deg_max,1);
 err_leja = zeros(deg_max,1);
 err_equi = zeros(deg_max,1);
 

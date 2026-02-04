@@ -14,23 +14,23 @@ n = numel(z);
 % Pesi baricentrici
 W = ones(1, n);
 for i = 1:n
-    diffs = z(i) - z;
-    diffs(i) = 1;
-    W(i) = 1 / prod(diffs);
+    diff = z(i) - z;
+    diff(i) = 1;
+    W(i) = 1 / prod(diff);
 end
 
 X = x * ones(1, n);
 Z = ones(numel(x), 1) * z;
 A = W ./ (X - Z);
 
-tol = 1e-14;
-is_node = abs(X - Z) < tol;
+toll = 1e-14;
+isNodo = abs(X - Z) < toll;
 
 S = sum(A, 2);
 lambda = sum(abs(A), 2) ./ abs(S);
 
-any_node = any(is_node, 2);
-lambda(any_node) = 1;
+anyNodo = any(isNodo, 2);
+lambda(anyNodo) = 1;
 
 L = max(lambda);
 end
