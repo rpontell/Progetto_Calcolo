@@ -72,7 +72,7 @@
 \section{Introduzione}
 Supponiamo di avere delle valutazioni $x \xrightarrow{} f(x)$ e delle misurazioni $(x_i, y_i=f(x_i))$, $i=0,1,...,m$. L'interpolazione è il processo con cui si cerca di costruire una funzione g, tale che $g(x_i)=y_i$ $\forall i$, con g scelta in maniera tale da renderla facile da costruire, valutare, derivare e integrare. \\[2mm]
 L'obiettivo del progetto è implementare in \textsc{Matlab} l'interpolazione polinomiale sfruttando i \emph{nodi di Leja} su \([{-}1,1]\), ma
-essendo il calcolo dei veri nodi computazionalmente molto oneroso, ci basiamo sui \emph{nodi di Leja approssimati} estratti da una mesh fitta di 5000 punti.\\
+essendo il calcolo dei veri nodi computazionalmente molto oneroso, ci basiamo sui \emph{nodi di Leja approssimati} estratti da una mesh fitta di $10^5$ punti.\\
 Nella soluzione verranno implementati due metodi per il calcolo dell'interpolazione con tali nodi, di cui si stimerà la \emph{costante di Lebesgue} di ciascuno per valutarne la stabilità e successivamente, verrà comparata l'accuratezza dell'interpolante, confrontandola con quella ottenuta utilizzando i \emph{nodi equispaziati}.
 
 % ===================== ALGORITMI =====================
