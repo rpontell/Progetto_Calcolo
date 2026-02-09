@@ -7,7 +7,7 @@ if d >= M
     error('DLP2: d deve essere < length(x).');
 end
 
-% Inizializzazione vettori 
+% Costruzione matrice di Vandermonde 
 xt = min(max(x, -1), 1);  
 theta = acos(xt);        
 j = 0:d;          
