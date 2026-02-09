@@ -22,7 +22,7 @@ if p(1) ~= 1
     p = [1; p(p~=1)];
 end
 
-% Seleziona i primi d+1 indici ed etrae i punti della mesh x transoposti corrispondenti
+% Seleziona i primi d+1 indici ed estrae i punti della mesh x trasposti corrispondenti
 idx = p(1:d+1);      
 dlp = x(idx).';      
 
